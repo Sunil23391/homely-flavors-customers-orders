@@ -1,7 +1,12 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 interface MenuItem {
+  name: string;
+  price: number;
+}
+
+interface Order {
   name: string;
   price: number;
   quantity?: number;
@@ -9,7 +14,9 @@ interface MenuItem {
 
 interface Customer {
   flatNumber: string;
-  orders: MenuItem[];
+  orders: Order[];
+  date?: Date | string;
+
 }
 
 const menuItems: MenuItem[] = [
@@ -49,23 +56,30 @@ const App = () => {
 
   const handleAddCustomer = () => {
     if (!flatNumber.trim()) return;
-    setCustomers([...customers, { flatNumber, orders: [] }]);
+    setCustomers([...customers, { flatNumber, orders: [], date: JSON.stringify(new Date()).replace(/\"/g,'') }]);
     setFlatNumber('');
   };
 
   const handleDeleteCustomer = (customerIndex: number) => {
-    setCustomers(customers.filter((_, index) => index !== customerIndex));
+    setCustomers(customers.
+      slice().
+      reverse().
+      filter((_, index) => index !== customerIndex).
+      slice().
+      reverse());
   };
 
   const handleAddOrder = (customerIndex: number) => {
-    const newOrder: MenuItem = { name: '', price: 0, quantity: 1 };
+    const newOrder: Order = { name: '', price: 0, quantity: 1 };
     setCustomers(
-      customers.map((customer, index) => {
+      customers.
+      slice().
+      reverse().map((customer, index) => {
         if (index === customerIndex) {
           return { ...customer, orders: [...customer.orders, newOrder] };
         }
         return customer;
-      })
+      }).slice().reverse()
     );
   };
 
@@ -75,7 +89,9 @@ const App = () => {
     menuItem: MenuItem
   ) => {
     setCustomers(
-      customers.map((customer, index) => {
+      customers.
+      slice().
+      reverse().map((customer, index) => {
         if (index === customerIndex) {
           return {
             ...customer,
@@ -88,13 +104,13 @@ const App = () => {
           };
         }
         return customer;
-      })
+      }).slice().reverse()
     );
   };
 
   const handleDeleteOrder = (customerIndex: number, orderIndex: number) => {
     setCustomers(
-      customers.map((customer, index) => {
+      customers.slice().reverse().map((customer, index) => {
         if (index === customerIndex) {
           return {
             ...customer,
@@ -102,7 +118,7 @@ const App = () => {
           };
         }
         return customer;
-      })
+      }).slice().reverse()
     );
   };
 
@@ -113,7 +129,7 @@ const App = () => {
   ) => {
     if (quantity < 1) return;
     setCustomers(
-      customers.map((customer, index) => {
+      customers.slice().reverse().map((customer, index) => {
         if (index === customerIndex) {
           return {
             ...customer,
@@ -126,7 +142,7 @@ const App = () => {
           };
         }
         return customer;
-      })
+      }).slice().reverse()
     );
   };
 
@@ -150,10 +166,11 @@ const App = () => {
       </div>
 
       <div className="right-panel">
-        {customers.map((customer, index) => (
+        {customers.slice().reverse().map((customer, index) => (
           <div key={index} className="customer-card">
             <div className="customer-header">
               <h2>Flat Number: {customer.flatNumber}</h2>
+              <p>Date: {typeof customer.date === 'string' ? new Date(customer.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }):null}</p>
               <button
                 onClick={() => handleDeleteCustomer(index)}
                 className="delete-flat-btn"
