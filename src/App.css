@@ -105,3 +105,15 @@ button:hover {
 input[type="number"] {
   width: 80px;
 }
+.timeandcomments{
+  display: flex;
+  flex-direction: column;
+}
+.timeandcomments .field{
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+.timeandcomments .field *{
+  flex-basis: content;
+}
